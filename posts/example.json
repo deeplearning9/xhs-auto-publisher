@@ -1,0 +1,14 @@
+{
+  "id": "first-note",
+  "status": "draft",
+  "publishAt": "2026-08-14T20:00:00+08:00",
+  "title": "这是笔记标题",
+  "content": "这是正文。发布前请替换成你自己的真实内容。",
+  "images": [
+    "../assets/cover.jpg"
+  ],
+  "tags": [
+    "生活记录",
+    "小红书"
+  ]
+}

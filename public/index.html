@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="本地运行的小红书内容生成与发布控制台">
+  <title>薯写 · 内容发布台</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="薯写首页"><span class="brand-mark">薯</span><span>薯写</span></a>
+    <div class="status-row">
+      <span id="llmStatus" class="status-pill">LLM 检查中</span>
+      <span id="xhsStatus" class="status-pill">小红书未检查</span>
+      <button id="loginButton" class="button button-secondary" type="button">扫码登录</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="editor-column">
+      <div class="intro">
+        <p class="eyebrow">AI CONTENT STUDIO</p>
+        <h1>从一个想法，到一篇<br><em>准备发布</em>的笔记。</h1>
+        <p>先让 AI 起草，再由你确认事实、图片与发布时间。发布动作始终由你决定。</p>
+      </div>
+
+      <form id="postForm">
+        <article class="panel">
+          <div class="panel-heading"><span>01</span><div><h2>告诉 AI 你想写什么</h2><p>信息越真实具体，生成结果越能直接使用。</p></div></div>
+          <label class="field field-full"><span>选题 / 产品 / 经历</span><textarea id="topic" rows="4" maxlength="300" required placeholder="例如：分享一套适合小户型的桌面收纳方法，重点是低预算、容易复刻"></textarea></label>
+          <div class="field-grid">
+            <label class="field"><span>目标读者</span><input id="audience" maxlength="120" placeholder="租房独居的上班族"></label>
+            <label class="field"><span>表达风格</span><select id="tone"><option>自然真诚</option><option>干货清单</option><option>轻松活泼</option><option>克制专业</option><option>故事感</option></select></label>
+          </div>
+          <label class="field field-full"><span>必须包含的真实信息</span><textarea id="keyPoints" rows="3" maxlength="800" placeholder="价格、规格、实际感受、注意事项……不要让 AI 猜"></textarea></label>
+          <div class="generate-row">
+            <label class="check"><input id="useEmoji" type="checkbox" checked><span>允许少量表情</span></label>
+            <button id="generateButton" class="button button-primary" type="button"><span>生成笔记草稿</span><b>↗</b></button>
+          </div>
+          <p id="generateStatus" class="operation-status" role="status" aria-live="polite" hidden></p>
+          <div id="autoImagePanel" class="auto-image-panel" hidden>
+            <div class="auto-image-heading">
+              <div><strong>自动找到的开放版权图片</strong><small>仅搜索 CC0 和公共领域竖图，已自动加入下方图片区域。</small></div>
+              <button id="refreshImagesButton" class="button button-light" type="button">换一批</button>
+            </div>
+            <div id="autoImageSources" class="auto-image-sources"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading"><span>02</span><div><h2>编辑并确认内容</h2><p>AI 生成的是草稿，请核对事实与表达。</p></div></div>
+          <label class="field field-full"><span>标题 <small id="titleCount">0 / 20</small></span><input id="title" name="title" required maxlength="20" placeholder="笔记标题"></label>
+          <label class="field field-full"><span>正文 <small id="contentCount">0 / 1000</small></span><textarea id="content" name="content" required rows="12" maxlength="1000" placeholder="笔记正文"></textarea></label>
+          <label class="field field-full"><span>标签</span><input id="tags" name="tags" placeholder="收纳, 租房改造, 桌面好物"></label>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading"><span>03</span><div><h2>图片与发布时间</h2><p>生成草稿后会自动找图；也可手动替换，最多 18 张。</p></div></div>
+          <label class="upload-zone" for="images"><strong>＋ 替换或添加笔记图片</strong><span>支持 JPG、PNG、WebP</span><input id="images" name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple required></label>
+          <div id="imagePreview" class="image-preview" aria-live="polite"></div>
+          <fieldset class="publish-options">
+            <legend>发布方式</legend>
+            <label><input type="radio" name="action" value="draft"><span><b>保存草稿</b><small>稍后再决定</small></span></label>
+            <label><input type="radio" name="action" value="schedule" checked><span><b>定时发布</b><small>到点自动执行</small></span></label>
+            <label><input type="radio" name="action" value="publish"><span><b>立即发布</b><small>保存后马上执行</small></span></label>
+          </fieldset>
+          <label id="scheduleField" class="field field-full"><span>发布时间</span><input id="publishAt" type="datetime-local"></label>
+          <div class="submit-row">
+            <p>正式发布可能触发平台验证；工具不会绕过验证码。</p>
+            <button id="saveButton" class="button button-dark" type="submit">保存任务</button>
+          </div>
+        </article>
+      </form>
+    </section>
+
+    <aside class="queue-column">
+      <div class="queue-header"><div><p class="eyebrow">PUBLISHING QUEUE</p><h2>发布队列</h2></div><button id="refreshButton" class="icon-button" type="button" title="刷新">↻</button></div>
+      <div id="queue" class="queue"><p class="empty">正在加载任务……</p></div>
+    </aside>
+  </main>
+  <div id="loginModal" class="modal-backdrop" hidden>
+    <section class="login-modal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+      <button id="closeLoginModal" class="modal-close" type="button" aria-label="关闭">×</button>
+      <p class="eyebrow">XIAOHONGSHU LOGIN</p>
+      <h2 id="loginModalTitle">使用小红书 App 扫码</h2>
+      <p>二维码来自小红书创作服务平台。扫码确认后，此窗口会自动关闭并保存登录状态。</p>
+      <div class="qr-frame"><img id="loginQrImage" alt="小红书登录二维码"></div>
+      <p id="loginQrStatus" class="login-qr-status" role="status">正在加载二维码……</p>
+      <button id="cancelLoginButton" class="button button-light" type="button">取消登录</button>
+    </section>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "loginUrl": "https://creator.xiaohongshu.com/",
+  "creatorUrl": "https://creator.xiaohongshu.com/publish/publish?source=official&from=tab_switch",
+  "profileDir": "./data/browser-profile",
+  "artifactsDir": "./data/artifacts",
+  "assetsDir": "./assets",
+  "postsDir": "./posts",
+  "webPort": 3210,
+  "pollSeconds": 30,
+  "loginTimeoutMinutes": 10,
+  "navigationTimeoutSeconds": 60
+}

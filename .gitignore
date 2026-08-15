@@ -1,0 +1,13 @@
+node_modules/
+.idea/
+.jbeval/
+.venv/
+.env
+data/browser-profile/
+data/artifacts/
+work/
+assets/*
+!assets/.gitkeep
+posts/*.json
+!posts/example.json
+*.log
